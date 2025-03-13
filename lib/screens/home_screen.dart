@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../widgets/bottom_navigation_bar.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> options = [
     {
       'title': 'Gestión de Personal',
       'icon': Icons.people_alt_rounded,
-      'route': '/personnel',
+      'route': '/employee',
     },
     {
       'title': 'Finanzas',
@@ -29,7 +30,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], 
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text(
           'Domus - Administración',
@@ -42,7 +43,7 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, 
+            crossAxisCount: 2,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
             childAspectRatio: 1,
@@ -91,6 +92,7 @@ class HomeScreen extends StatelessWidget {
           },
         ),
       ),
+      bottomNavigationBar: BottomNavigationBarCard(currentIndex: 0),
     );
   }
 }
