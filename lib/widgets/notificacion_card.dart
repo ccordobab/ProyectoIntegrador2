@@ -1,11 +1,11 @@
-import 'package:domus/models/excusa_model.dart';
+import 'package:domus/models/notification_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ExcusaCard extends StatelessWidget {
-  final Excusa excusa;
+class NotificacionCard extends StatelessWidget {
+  final Notificacion notificacion;
 
-  ExcusaCard({required this.excusa});
+  NotificacionCard({required this.notificacion});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class ExcusaCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                excusa.name,
+                notificacion.name,
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -30,15 +30,16 @@ class ExcusaCard extends StatelessWidget {
               ),
               Divider(color: Colors.grey[300]),
 
-              _buildInfoRow(Icons.person, "Descripción", excusa.description),
-              _buildInfoRow(Icons.badge, "Rol", excusa.employee.role),
-              _buildInfoRow(
-                  Icons.numbers, "ID empleado", excusa.employee.id.toString()),
+              _buildInfoRow(Icons.calendar_month, "Fecha", notificacion.date),
+              _buildInfoRow(Icons.badge, "Estado", notificacion.state),
 
-              if (excusa.employee.phone != null)
-                _buildInfoRow(Icons.phone, "Teléfono", excusa.employee.phone!),
-              if (excusa.employee.email != null)
-                _buildInfoRow(Icons.email, "Email", excusa.employee.email!),
+              if (notificacion.description != null)
+                _buildInfoRow(
+                    Icons.info, "Descripcion", notificacion.description!),
+              if (notificacion.place != null)
+                _buildInfoRow(Icons.pin_drop, "Lugar", notificacion.place!),
+              if (notificacion.person != null)
+                _buildInfoRow(Icons.person, "Persona", notificacion.person!),
 
               SizedBox(height: 15),
 
@@ -48,7 +49,7 @@ class ExcusaCard extends StatelessWidget {
                 children: [
                   _buildButton(
                     icon: Icons.check,
-                    label: "Aceptar",
+                    label: "Marcar leido",
                     color: Colors.green,
                     onPressed: () {
                       // Lógica para aceptar la excusa
