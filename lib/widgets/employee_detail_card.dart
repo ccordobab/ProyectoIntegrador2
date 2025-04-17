@@ -29,11 +29,12 @@ class EmployeeDetailCard extends StatelessWidget {
                 ),
               ),
               Divider(color: Colors.grey[300]),
-
               _buildInfoRow(Icons.person, "Nombre", employee.name),
               _buildInfoRow(Icons.badge, "Rol", employee.role),
-              _buildInfoRow(Icons.numbers, "ID", employee.id.toString()),
-
+              _buildInfoRow(
+                  Icons.numbers, "ID empleado", employee.id.toString()),
+              _buildInfoRow(
+                  Icons.numbers, "ID usuario", employee.userId.toString()),
               if (employee.phone != null)
                 _buildInfoRow(Icons.phone, "Teléfono", employee.phone!),
               if (employee.email != null)
@@ -54,13 +55,15 @@ class EmployeeDetailCard extends StatelessWidget {
           SizedBox(width: 10),
           Text(
             "$label:",
-            style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w500),
+            style:
+                GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w500),
           ),
           SizedBox(width: 5),
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w400),
+              style: GoogleFonts.poppins(
+                  fontSize: 15, fontWeight: FontWeight.w400),
               overflow: TextOverflow.ellipsis,
             ),
           ),

@@ -16,10 +16,17 @@ class EmployeeDetailScreen extends StatefulWidget {
   _EmployeeDetailScreenState createState() => _EmployeeDetailScreenState();
 }
 
-class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> with SingleTickerProviderStateMixin {
+class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<Tarea> tareas = [
-    Tarea(id: 1, nombre: 'Verificar seguridad', fecha: '12/05/2025', lugar: 'Sendero', estado: 'Pendiente', persona: 'Lolita'),
+    Tarea(
+        id: 1,
+        nombre: 'Verificar seguridad',
+        fecha: '12/05/2025',
+        lugar: 'Sendero',
+        estado: 'Pendiente',
+        persona: 'Lolita'),
   ];
 
   @override
@@ -41,12 +48,14 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> with Single
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.employee.name, style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: Text(widget.employee.name,
+            style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold)),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.green,
           dividerColor: Colors.lightGreen,
-          labelStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.green),
+          labelStyle: GoogleFonts.lato(
+              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.green),
           tabs: [
             Tab(text: 'Información'),
             Tab(text: 'Tareas'),
@@ -87,7 +96,12 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> with Single
 
   Widget _buildExcusasTab() {
     List<Excusa> excusas = [
-      Excusa(id: 1, name: 'Incapacidad', employee: Employee(id: 4, name: 'Katy', role: 'Salva vidas'), description: 'Tengo gripa'),
+      Excusa(
+          id: 1,
+          name: 'Incapacidad',
+          employee:
+              Employee(id: 4, name: 'Katy', role: 'Salva vidas', userId: 5),
+          description: 'Tengo gripa'),
     ];
 
     return ListView.builder(
@@ -107,7 +121,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen> with Single
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Nueva Tarea", style: GoogleFonts.lato(fontSize: 20, fontWeight: FontWeight.bold)),
+          title: Text("Nueva Tarea",
+              style:
+                  GoogleFonts.lato(fontSize: 20, fontWeight: FontWeight.bold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

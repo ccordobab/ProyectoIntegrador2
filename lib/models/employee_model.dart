@@ -4,11 +4,13 @@ class Employee {
   final String role;
   final String? phone;
   final String? email;
+  final int userId;
 
   Employee({
     required this.id,
     required this.name,
     required this.role,
+    required this.userId,
     this.phone,
     this.email,
   });
@@ -17,10 +19,11 @@ class Employee {
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
       id: json['id'],
-      name: json['name'],
+      name: json['user']['name'],
       role: json['role'],
-      phone: json['phone'],
-      email: json['email'],
+      phone: json['user']['phone'],
+      email: json['user']['email'],
+      userId: json['user']['id'],
     );
   }
 }
