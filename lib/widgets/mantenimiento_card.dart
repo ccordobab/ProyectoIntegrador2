@@ -1,32 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/maintenance_model.dart';
-import '../screens/mantenimiento_detalle_screen.dart';
 
 class MantenimientoCard extends StatelessWidget {
   final Maintenance mantenimiento;
 
-  const MantenimientoCard({Key? key, required this.mantenimiento}) : super(key: key);
+  const MantenimientoCard({Key? key, required this.mantenimiento})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
-      child: ListTile(
-        title: Text(mantenimiento.lugar, style: GoogleFonts.lato(fontSize: 18, fontWeight: FontWeight.w600)),
-        subtitle: Text("Fecha: ${mantenimiento.fecha}", style: GoogleFonts.lato(fontSize: 14)),
-        trailing: Text(mantenimiento.estado, style: GoogleFonts.lato(fontSize: 14, fontWeight: FontWeight.w500)),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MantenimientoDetalleScreen(mantenimiento: mantenimiento),
-            ),
-          );
-        },
+    return Center(
+      child: Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                mantenimiento.nombre,
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green[700],
+                ),
+              ),
+              Divider(color: Colors.grey[300]),
+
+              _buildInfoRow(
+                  Icons.person, "Descripción", mantenimiento.descripcion),
+              _buildInfoRow(Icons.calendar_today, "Fecha", mantenimiento.fecha),
+              _buildInfoRow(Icons.calendar_today, "Tipo", mantenimiento.tipo),
+              _buildInfoRow(Icons.numbers, "Esta completado? ",
+                  mantenimiento.completado.toString()),
+
+              SizedBox(height: 15),
+
+              // Botones de Aceptar y Rechazar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildButton(
+                    icon: Icons.check,
+                    label: "Aceptar",
+                    color: Colors.green,
+                    onPressed: () {
+                      // Lógica para aceptar la excusa
+                      print("Excusa aceptada");
+                    },
+                  ),
+                  _buildButton(
+                    icon: Icons.close,
+                    label: "Rechazar",
+                    color: Colors.red,
+                    onPressed: () {
+                      // Lógica para rechazar la excusa
+                      print("Excusa rechazada");
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.green[700], size: 20),
+          SizedBox(width: 10),
+          Text(
+            "$label:",
+            style:
+                GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w500),
+          ),
+          SizedBox(width: 5),
+          Expanded(
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                  fontSize: 15, fontWeight: FontWeight.w400),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+      icon: Icon(icon, size: 20),
+      label: Text(label,
+          style:
+              GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600)),
+      onPressed: onPressed,
     );
   }
 }

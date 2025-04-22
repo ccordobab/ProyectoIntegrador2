@@ -1,12 +1,12 @@
-class Tarea {
+class Task {
   final int id;
   final String nombre;
   final String fecha;
   final String lugar;
   final String estado;
-  final String persona;
+  final int persona;
 
-  Tarea({
+  Task({
     required this.id,
     required this.nombre,
     required this.fecha,
@@ -16,14 +16,14 @@ class Tarea {
   });
 
   // Convertir JSON a objeto Dart
-  factory Tarea.fromJson(Map<String, dynamic> json) {
-    return Tarea(
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
       id: json['id'],
-      lugar: json['lugar'],
-      fecha: json['fecha'],
-      nombre: json['nombre'],
-      estado: json['estado'],
-      persona: json['persona'],
+      lugar: json['place'],
+      fecha: json['time'],
+      nombre: json['name'],
+      estado: json['state'],
+      persona: json['employee'],
     );
   }
 }

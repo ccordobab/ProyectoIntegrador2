@@ -1,9 +1,9 @@
-import 'package:domus/models/tarea_model.dart';
+import 'package:domus/models/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TareaCard extends StatelessWidget {
-  final Tarea tarea;
+  final Task tarea;
 
   TareaCard({required this.tarea});
 
@@ -30,7 +30,8 @@ class TareaCard extends StatelessWidget {
               ),
               Divider(color: Colors.grey[300]),
 
-              _buildInfoRow(Icons.person, "Trabajador", tarea.persona),
+              _buildInfoRow(
+                  Icons.person, "Trabajador ID", tarea.persona.toString()),
               _buildInfoRow(Icons.calendar_month, "Fecha", tarea.fecha),
               _buildInfoRow(Icons.pin_drop, "Lugar", tarea.lugar),
               _buildInfoRow(Icons.timer, "estado", tarea.estado),

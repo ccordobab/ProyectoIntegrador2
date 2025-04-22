@@ -1,16 +1,18 @@
-import 'package:domus/models/employee_model.dart';
-
 class Excusa {
   final int id;
   final String name;
-  final Employee employee;
+  final int employeeId;
   final String description;
+  final String fromDate;
+  final String toDate;
 
   Excusa({
     required this.id,
     required this.name,
-    required this.employee,
+    required this.employeeId,
     required this.description,
+    required this.fromDate,
+    required this.toDate,
   });
 
   // Convertir JSON a objeto Dart
@@ -18,8 +20,10 @@ class Excusa {
     return Excusa(
       id: json['id'],
       name: json['name'],
-      employee: json['employee'],
+      employeeId: json['employee'],
       description: json['description'],
+      fromDate: json['fromDate'],
+      toDate: json['toDate'],
     );
   }
 }

@@ -13,4 +13,78 @@ class ApiService {
       throw Exception("Error al obtener los usuarios");
     }
   }
+
+  Future<List<dynamic>> fetchTasksByEmployee(int employeeId) async {
+    final response =
+        await http.get(Uri.parse("${baseUrl}tasks/employee/$employeeId/"));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Error al obtener tareas del empleado");
+    }
+  }
+
+  Future<List<dynamic>> fetchExcusasByEmployee(int employeeId) async {
+    final response =
+        await http.get(Uri.parse("${baseUrl}excusa/employee/$employeeId/"));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Error al obtener excusas del empleado");
+    }
+  }
+
+  Future<void> createTask(Map<String, dynamic> taskData) async {
+    final url = Uri.parse(
+        "${baseUrl}tareas/"); // Asegúrate de tener esta ruta en Django
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(taskData),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception("Error al crear la tarea");
+    }
+  }
+
+  Future<void> createExcusa(Map<String, dynamic> taskData) async {
+    final url = Uri.parse(
+        "${baseUrl}excusas/"); // Asegúrate de tener esta ruta en Django
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(taskData),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception("Error al crear la Excusa");
+    }
+  }
+
+  Future<List<dynamic>> fetchMaintenances() async {
+    final response = await http.get(Uri.parse("${baseUrl}mantenimientos/"));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Error al obtener los mantenimientos");
+    }
+  }
+
+  Future<void> createMaintenance(Map<String, dynamic> taskData) async {
+    final url = Uri.parse(
+        "${baseUrl}maintenances/"); // Asegúrate de tener esta ruta en Django
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(taskData),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception("Error al crear manteniminto");
+    }
+  }
 }

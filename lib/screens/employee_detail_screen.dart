@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:domus/models/employee_model.dart';
 import 'package:domus/models/excusa_model.dart';
-import 'package:domus/models/tarea_model.dart';
+import 'package:domus/models/task_model.dart';
 import 'package:domus/widgets/Excusa_card.dart';
 import 'package:domus/widgets/employee_detail_card.dart';
 import 'package:domus/widgets/tarea_card.dart';
+import 'package:domus/services/api_service.dart'; // IMPORTANTE
 
 class EmployeeDetailScreen extends StatefulWidget {
   final Employee employee;
@@ -19,29 +20,37 @@ class EmployeeDetailScreen extends StatefulWidget {
 class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<Tarea> tareas = [
-    Tarea(
-        id: 1,
-        nombre: 'Verificar seguridad',
-        fecha: '12/05/2025',
-        lugar: 'Sendero',
-        estado: 'Pendiente',
-        persona: 'Lolita'),
-  ];
+  late Future<List<Task>> _futureTareas;
+  late Future<List<Excusa>> _futureExcusas;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
-      setState(() {}); // Redibuja la pantalla cuando cambia la pestaña
+      setState(() {});
     });
+
+    _futureTareas = _fetchTareasDesdeAPI();
+    _futureExcusas = _fetchExcusasDesdeAPI();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<List<Task>> _fetchTareasDesdeAPI() async {
+    ApiService apiService = ApiService();
+    final data = await apiService.fetchTasksByEmployee(widget.employee.id);
+    return data.map<Task>((json) => Task.fromJson(json)).toList();
+  }
+
+  Future<List<Excusa>> _fetchExcusasDesdeAPI() async {
+    ApiService apiService = ApiService();
+    final data = await apiService.fetchExcusasByEmployee(widget.employee.id);
+    return data.map<Excusa>((json) => Excusa.fromJson(json)).toList();
   }
 
   @override
@@ -77,7 +86,13 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
               backgroundColor: Colors.greenAccent,
               child: Icon(Icons.add, color: Colors.white),
             )
-          : null, // Oculta el botón en otras pestañas
+          : _tabController.index == 2
+              ? FloatingActionButton(
+                  onPressed: _mostrarFormularioExcusa,
+                  backgroundColor: Colors.lightGreen,
+                  child: const Icon(Icons.note_add, color: Colors.white),
+                )
+              : null,
     );
   }
 
@@ -86,28 +101,49 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
   }
 
   Widget _buildTareasTab() {
-    return ListView.builder(
-      itemCount: tareas.length,
-      itemBuilder: (context, index) {
-        return TareaCard(tarea: tareas[index]);
+    return FutureBuilder<List<Task>>(
+      future: _futureTareas,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text('Error al cargar tareas: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No hay tareas asignadas.'));
+        } else {
+          List<Task> tareas = snapshot.data!;
+          return ListView.builder(
+            itemCount: tareas.length,
+            itemBuilder: (context, index) {
+              return TareaCard(tarea: tareas[index]);
+            },
+          );
+        }
       },
     );
   }
 
   Widget _buildExcusasTab() {
-    List<Excusa> excusas = [
-      Excusa(
-          id: 1,
-          name: 'Incapacidad',
-          employee:
-              Employee(id: 4, name: 'Katy', role: 'Salva vidas', userId: 5),
-          description: 'Tengo gripa'),
-    ];
-
-    return ListView.builder(
-      itemCount: excusas.length,
-      itemBuilder: (context, index) {
-        return ExcusaCard(excusa: excusas[index]);
+    return FutureBuilder<List<Excusa>>(
+      future: _futureExcusas,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text('Error al cargar excusas: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No hay excusas.'));
+        } else {
+          List<Excusa> excusas = snapshot.data!;
+          return ListView.builder(
+            itemCount: excusas.length,
+            itemBuilder: (context, index) {
+              return ExcusaCard(excusa: excusas[index]);
+            },
+          );
+        }
       },
     );
   }
@@ -133,11 +169,12 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
               ),
               TextField(
                 controller: fechaController,
-                decoration: InputDecoration(labelText: "Fecha"),
+                decoration:
+                    InputDecoration(labelText: "Fecha (YYYY-MM-DD HH:MM)"),
               ),
               TextField(
                 controller: lugarController,
-                decoration: InputDecoration(labelText: "Lugar"),
+                decoration: InputDecoration(labelText: "Lugar (nombre exacto)"),
               ),
             ],
           ),
@@ -147,18 +184,95 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
               child: Text("Cancelar", style: TextStyle(color: Colors.red)),
             ),
             ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  tareas.add(Tarea(
-                    id: tareas.length + 1,
-                    nombre: nombreController.text,
-                    fecha: fechaController.text,
-                    lugar: lugarController.text,
-                    estado: "Pendiente",
-                    persona: widget.employee.name,
-                  ));
-                });
-                Navigator.pop(context);
+              onPressed: () async {
+                try {
+                  final taskData = {
+                    "name": nombreController.text,
+                    "time": fechaController.text,
+                    "state": "scheduled",
+                    "employee": widget.employee.id,
+                    "place": lugarController.text,
+                  };
+
+                  await ApiService().createTask(taskData);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Tarea creada con éxito")));
+
+                  Navigator.pop(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error al crear la tarea")));
+                }
+              },
+              child: Text("Guardar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _mostrarFormularioExcusa() {
+    TextEditingController nombreController = TextEditingController();
+    TextEditingController fechaInicialController = TextEditingController();
+    TextEditingController fechaFinalController = TextEditingController();
+    TextEditingController descripcionController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Nueva Excusa",
+              style:
+                  GoogleFonts.lato(fontSize: 20, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nombreController,
+                decoration: InputDecoration(labelText: "Nombre de la excusa"),
+              ),
+              TextField(
+                controller: fechaInicialController,
+                decoration: InputDecoration(labelText: "Fecha (DD-MM-YYYY)"),
+              ),
+              TextField(
+                controller: fechaFinalController,
+                decoration: InputDecoration(labelText: "Fecha (DD-MM-YYYY)"),
+              ),
+              TextField(
+                controller: descripcionController,
+                decoration: InputDecoration(labelText: "Describa la excusa"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancelar", style: TextStyle(color: Colors.red)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final taskData = {
+                    "name": nombreController.text,
+                    "fromDate": fechaInicialController.text,
+                    "toDate": fechaFinalController.text,
+                    "employee": widget.employee.id,
+                    "description": descripcionController.text,
+                  };
+
+                  await ApiService().createExcusa(taskData);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Excusa creada con éxito")));
+
+                  Navigator.pop(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error al crear la Excusa $e")));
+                }
               },
               child: Text("Guardar"),
             ),

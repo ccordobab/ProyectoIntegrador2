@@ -3,19 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/mantenimiento_card.dart';
+import 'package:domus/services/api_service.dart';
 
 class MaintenanceScreen extends StatefulWidget {
   @override
   _MaintenanceScreenState createState() => _MaintenanceScreenState();
 }
 
-class _MaintenanceScreenState extends State<MaintenanceScreen> with SingleTickerProviderStateMixin {
+class _MaintenanceScreenState extends State<MaintenanceScreen>
+    with SingleTickerProviderStateMixin {
+  late Future<List<Maintenance>> _futureMaintenances;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      setState(() {});
+    });
+
+    _futureMaintenances = _fetchMaintenancesDesdeAPI();
   }
 
   @override
@@ -24,20 +32,27 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> with SingleTicker
     super.dispose();
   }
 
+  Future<List<Maintenance>> _fetchMaintenancesDesdeAPI() async {
+    ApiService apiService = ApiService();
+    final data = await apiService.fetchMaintenances();
+    return data.map<Maintenance>((json) => Maintenance.fromJson(json)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mantenimientos', style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: Text('Mantenimientos',
+            style: GoogleFonts.lato(fontSize: 22, fontWeight: FontWeight.bold)),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.green,
           dividerColor: Colors.lightGreen,
-          labelStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.green),
+          labelStyle: GoogleFonts.lato(
+              fontSize: 16, fontWeight: FontWeight.w600, color: Colors.green),
           tabs: [
-            Tab(text: 'Programados'),
-            Tab(text: 'Historial'),
-            Tab(text: 'Nuevo'),
+            Tab(text: 'Pendientes'),
+            Tab(text: 'Completados'),
           ],
         ),
       ),
@@ -46,92 +61,142 @@ class _MaintenanceScreenState extends State<MaintenanceScreen> with SingleTicker
         children: [
           _buildProgramadosTab(),
           _buildHistorialTab(),
-          _buildNuevoTab(),
         ],
       ),
+      floatingActionButton: _tabController.index == 1
+          ? FloatingActionButton(
+              onPressed: _mostrarFormularioMantenimiento,
+              backgroundColor: Colors.greenAccent,
+              child: Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 
   Widget _buildProgramadosTab() {
-    List<Maintenance> mantenimientos = [
-      Maintenance(id: 1, lugar: "Ascensor", fecha: "2025-03-15", tipo: "ventilacion", estado: "Pendiente"),
-      Maintenance(id: 2, lugar: "Parqueadero", fecha: "2025-03-20", tipo: "Iluminación", estado: "En proceso"),
-      Maintenance(id: 3, lugar: "Porteria", fecha: "2025-03-25", tipo: "Tuberías", estado: "Completado"),
-    ];
-
-    return ListView.builder(
-      itemCount: mantenimientos.length,
-      itemBuilder: (context, index) {
-        return MantenimientoCard(mantenimiento: mantenimientos[index]);
+    return FutureBuilder<List<Maintenance>>(
+      future: _futureMaintenances,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text('Error al cargar Mantenimientos: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No hay Mantenimientos aqui.'));
+        } else {
+          List<Maintenance> mantenimientos = snapshot.data!;
+          return ListView.builder(
+            itemCount: mantenimientos.length,
+            itemBuilder: (context, index) {
+              return MantenimientoCard(mantenimiento: mantenimientos[index]);
+            },
+          );
+        }
       },
     );
   }
 
   Widget _buildHistorialTab() {
-    List<Maintenance> historial = [
-      Maintenance(id: 1, lugar: "Piscina", fecha: "2025-03-15", tipo: "rutina", estado: "Pendiente"),
-      Maintenance(id: 2, lugar: "Cancha", fecha: "2025-03-20", tipo: "Iluminación", estado: "En proceso"),
-      Maintenance(id: 3, lugar: "Entrada", fecha: "2025-03-25", tipo: "Tuberías", estado: "Completado"),
-    ];
-
-    return ListView.builder(
-      itemCount: historial.length,
-      itemBuilder: (context, index) {
-        return MantenimientoCard(mantenimiento: historial[index]);
+    return FutureBuilder<List<Maintenance>>(
+      future: _futureMaintenances,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+              child: Text('Error al cargar Mantenimientos: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No hay Mantenimientos aqui.'));
+        } else {
+          List<Maintenance> mantenimientos = snapshot.data!;
+          return ListView.builder(
+            itemCount: mantenimientos.length,
+            itemBuilder: (context, index) {
+              return MantenimientoCard(mantenimiento: mantenimientos[index]);
+            },
+          );
+        }
       },
     );
   }
 
+  void _mostrarFormularioMantenimiento() {
+    TextEditingController nombreController = TextEditingController();
+    TextEditingController fechaController = TextEditingController();
+    TextEditingController lugarController = TextEditingController();
+    TextEditingController descripcionController = TextEditingController();
+    TextEditingController tipoController = TextEditingController();
 
-  Widget _buildNuevoTab() {
-    TextEditingController _tipoController = TextEditingController();
-    TextEditingController _fechaController = TextEditingController();
-    TextEditingController _descripcionController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Nuevo Mantenimiento",
+              style:
+                  GoogleFonts.lato(fontSize: 20, fontWeight: FontWeight.bold)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nombreController,
+                decoration:
+                    InputDecoration(labelText: "Nombre del mantenimiento"),
+              ),
+              TextField(
+                controller: fechaController,
+                decoration:
+                    InputDecoration(labelText: "Fecha (YYYY-MM-DD HH:MM)"),
+              ),
+              TextField(
+                controller: lugarController,
+                decoration: InputDecoration(labelText: "Lugar (nombre exacto)"),
+              ),
+              TextField(
+                controller: descripcionController,
+                decoration:
+                    InputDecoration(labelText: "describa el mantenimiento"),
+              ),
+              TextField(
+                controller: tipoController,
+                decoration:
+                    InputDecoration(labelText: "describa el mantenimiento"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancelar", style: TextStyle(color: Colors.red)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final taskData = {
+                    "name": nombreController.text,
+                    "date": fechaController.text,
+                    "completed": false,
+                    "description": descripcionController,
+                    "place": lugarController.text,
+                    "type": tipoController,
+                  };
 
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        children: [
-          TextField(
-            controller: _tipoController,
-            decoration: InputDecoration(
-              labelText: "Tipo de mantenimiento",
-              labelStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w500),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  await ApiService().createMaintenance(taskData);
+
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Mantenimiento creado con éxito")));
+
+                  Navigator.pop(context);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error al crear mantenimiento")));
+                }
+              },
+              child: Text("Guardar"),
             ),
-          ).animate().fade(duration: 500.ms),
-          SizedBox(height: 12),
-          TextField(
-            controller: _fechaController,
-            decoration: InputDecoration(
-              labelText: "Fecha programada",
-              labelStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w500),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-          ).animate().fade(duration: 500.ms, delay: 100.ms),
-          SizedBox(height: 12),
-          TextField(
-            controller: _descripcionController,
-            decoration: InputDecoration(
-              labelText: "Descripción",
-              labelStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w500),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            maxLines: 3,
-          ).animate().fade(duration: 500.ms, delay: 200.ms),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              print("Nuevo mantenimiento: ${_tipoController.text}");
-            },
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            child: Text("Registrar Mantenimiento", style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.w600)),
-          ).animate().fade(duration: 500.ms, delay: 300.ms),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 }

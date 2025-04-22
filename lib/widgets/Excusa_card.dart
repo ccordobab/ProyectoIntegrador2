@@ -31,14 +31,10 @@ class ExcusaCard extends StatelessWidget {
               Divider(color: Colors.grey[300]),
 
               _buildInfoRow(Icons.person, "Descripción", excusa.description),
-              _buildInfoRow(Icons.badge, "Rol", excusa.employee.role),
-              _buildInfoRow(
-                  Icons.numbers, "ID empleado", excusa.employee.id.toString()),
-
-              if (excusa.employee.phone != null)
-                _buildInfoRow(Icons.phone, "Teléfono", excusa.employee.phone!),
-              if (excusa.employee.email != null)
-                _buildInfoRow(Icons.email, "Email", excusa.employee.email!),
+              _buildInfoRow(Icons.calendar_today, "Desde", excusa.fromDate),
+              _buildInfoRow(Icons.calendar_today, "Hasta", excusa.toDate),
+              _buildInfoRow(Icons.numbers, "ID del empleado",
+                  excusa.employeeId.toString()),
 
               SizedBox(height: 15),
 

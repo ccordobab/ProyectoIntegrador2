@@ -1,35 +1,32 @@
 class Maintenance {
   final int id;
+  final String nombre;
   final String lugar;
   final String fecha;
   final String tipo;
-  final String estado;
-  final double? costo;
-  final String? descripcion;
-  final String? encargado;
+  final bool completado;
+  final String descripcion;
 
   Maintenance({
     required this.id,
+    required this.nombre,
     required this.lugar,
     required this.fecha,
     required this.tipo,
-    required this.estado,
-    this.costo,
-    this.descripcion,
-    this.encargado,
+    required this.completado,
+    required this.descripcion,
   });
 
   // Convertir JSON a objeto Dart
   factory Maintenance.fromJson(Map<String, dynamic> json) {
     return Maintenance(
       id: json['id'],
-      lugar: json['lugar'],
-      fecha: json['fecha'],
-      tipo: json['tipo'],
-      estado: json['estado'],
-      costo: json['costo'],
-      descripcion: json['descripcion'],
-      encargado: json['encargado'],
+      nombre: json['name'],
+      lugar: json['place'],
+      fecha: json['date'],
+      tipo: json['type'],
+      completado: json['state'],
+      descripcion: json['description'],
     );
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/tarea_model.dart';
+import '../models/task_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TareaDetalleScreen extends StatelessWidget {
-  final Tarea tarea;
+  final Task tarea;
 
   TareaDetalleScreen({required this.tarea});
 
@@ -24,12 +24,13 @@ class TareaDetalleScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Lugar: ${tarea.nombre}", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text("Lugar: ${tarea.nombre}",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               Text("Fecha: ${tarea.fecha}", style: TextStyle(fontSize: 15)),
               Text("Tipo: ${tarea.lugar}", style: TextStyle(fontSize: 15)),
               Text("Estado: ${tarea.estado}", style: TextStyle(fontSize: 15)),
-              Text("Persona: ${tarea.persona}", style: TextStyle(fontSize: 15)),              
+              Text("Persona: ${tarea.persona}", style: TextStyle(fontSize: 15)),
             ],
           ),
         ),

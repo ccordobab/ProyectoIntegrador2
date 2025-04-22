@@ -1,7 +1,6 @@
 import 'package:domus/screens/employee_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
-import 'screens/personnel_screen.dart';
 import 'screens/finance_screen.dart';
 import 'screens/reservations_screen.dart';
 import 'screens/maintenance_screen.dart';
@@ -21,7 +20,6 @@ class DomusApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => HomeScreen(),
-        '/personnel': (context) => PersonnelScreen(),
         '/finances': (context) => FinanceScreen(),
         '/reservations': (context) => ReservationsScreen(),
         '/mantenimientos': (context) => MaintenanceScreen(),
