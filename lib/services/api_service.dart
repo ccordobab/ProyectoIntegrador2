@@ -64,8 +64,9 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> fetchMaintenances() async {
-    final response = await http.get(Uri.parse("${baseUrl}mantenimientos/"));
+  Future<List<dynamic>> fetchMaintenances({required bool completed}) async {
+    final response = await http
+        .get(Uri.parse("${baseUrl}maintenances/?completed=$completed"));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -85,6 +86,31 @@ class ApiService {
 
     if (response.statusCode != 201) {
       throw Exception("Error al crear manteniminto");
+    }
+  }
+
+  // api_service.dart
+  Future<void> markAsCompleted(int id) async {
+    final response = await http.patch(
+      Uri.parse("${baseUrl}maintenances/$id/"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"completed": true}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("No se pudo marcar como completado");
+    }
+  }
+
+  Future<void> markAsUncompleted(int id) async {
+    final response = await http.patch(
+      Uri.parse("${baseUrl}maintenances/$id/"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"completed": false}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception("No se pudo marcar como incompletado");
     }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/maintenance_model.dart';
+import '../services/api_service.dart';
 
 class MantenimientoCard extends StatelessWidget {
   final Maintenance mantenimiento;
@@ -48,8 +49,8 @@ class MantenimientoCard extends StatelessWidget {
                     icon: Icons.check,
                     label: "Aceptar",
                     color: Colors.green,
-                    onPressed: () {
-                      // Lógica para aceptar la excusa
+                    onPressed: () async {
+                      await ApiService().markAsCompleted(mantenimiento.id);
                       print("Excusa aceptada");
                     },
                   ),
@@ -57,8 +58,8 @@ class MantenimientoCard extends StatelessWidget {
                     icon: Icons.close,
                     label: "Rechazar",
                     color: Colors.red,
-                    onPressed: () {
-                      // Lógica para rechazar la excusa
+                    onPressed: () async {
+                      await ApiService().markAsUncompleted(mantenimiento.id);
                       print("Excusa rechazada");
                     },
                   ),

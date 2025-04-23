@@ -12,7 +12,8 @@ class MaintenanceScreen extends StatefulWidget {
 
 class _MaintenanceScreenState extends State<MaintenanceScreen>
     with SingleTickerProviderStateMixin {
-  late Future<List<Maintenance>> _futureMaintenances;
+  late Future<List<Maintenance>> _futureMaintenancesPendientes;
+  late Future<List<Maintenance>> _futureMaintenancesCompletas;
   late TabController _tabController;
 
   @override
@@ -23,7 +24,8 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
       setState(() {});
     });
 
-    _futureMaintenances = _fetchMaintenancesDesdeAPI();
+    _futureMaintenancesPendientes = _fetchMaintenancesDesdeAPI(false);
+    _futureMaintenancesCompletas = _fetchMaintenancesDesdeAPI(true);
   }
 
   @override
@@ -32,9 +34,9 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
     super.dispose();
   }
 
-  Future<List<Maintenance>> _fetchMaintenancesDesdeAPI() async {
+  Future<List<Maintenance>> _fetchMaintenancesDesdeAPI(bool completed) async {
     ApiService apiService = ApiService();
-    final data = await apiService.fetchMaintenances();
+    final data = await apiService.fetchMaintenances(completed: completed);
     return data.map<Maintenance>((json) => Maintenance.fromJson(json)).toList();
   }
 
@@ -75,7 +77,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
 
   Widget _buildProgramadosTab() {
     return FutureBuilder<List<Maintenance>>(
-      future: _futureMaintenances,
+      future: _futureMaintenancesPendientes,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -99,7 +101,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
 
   Widget _buildHistorialTab() {
     return FutureBuilder<List<Maintenance>>(
-      future: _futureMaintenances,
+      future: _futureMaintenancesCompletas,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -181,6 +183,13 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
                   };
 
                   await ApiService().createMaintenance(taskData);
+
+                  setState(() {
+                    _futureMaintenancesPendientes =
+                        _fetchMaintenancesDesdeAPI(false);
+                    _futureMaintenancesCompletas =
+                        _fetchMaintenancesDesdeAPI(true);
+                  });
 
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text("Mantenimiento creado con éxito")));
