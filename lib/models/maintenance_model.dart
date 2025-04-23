@@ -24,8 +24,8 @@ class Maintenance {
       nombre: json['name'],
       lugar: json['place'],
       fecha: json['date'],
-      tipo: json['type'],
-      completado: json['state'],
+      tipo: json['maintenanceType'],
+      completado: json['completed'],
       descripcion: json['description'],
     );
   }

@@ -63,7 +63,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
           _buildHistorialTab(),
         ],
       ),
-      floatingActionButton: _tabController.index == 1
+      floatingActionButton: _tabController.index == 0
           ? FloatingActionButton(
               onPressed: _mostrarFormularioMantenimiento,
               backgroundColor: Colors.greenAccent,
@@ -159,8 +159,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
               ),
               TextField(
                 controller: tipoController,
-                decoration:
-                    InputDecoration(labelText: "describa el mantenimiento"),
+                decoration: InputDecoration(labelText: "tipo de mantenimiento"),
               ),
             ],
           ),
@@ -176,9 +175,9 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
                     "name": nombreController.text,
                     "date": fechaController.text,
                     "completed": false,
-                    "description": descripcionController,
+                    "description": descripcionController.text,
                     "place": lugarController.text,
-                    "type": tipoController,
+                    "maintenanceType": tipoController.text,
                   };
 
                   await ApiService().createMaintenance(taskData);
@@ -188,8 +187,9 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
 
                   Navigator.pop(context);
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Error al crear mantenimiento")));
+                  print(e);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Error al crear mantenimiento ${e}")));
                 }
               },
               child: Text("Guardar"),
