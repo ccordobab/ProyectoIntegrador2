@@ -167,10 +167,50 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
                 controller: nombreController,
                 decoration: InputDecoration(labelText: "Nombre de la tarea"),
               ),
-              TextField(
-                controller: fechaController,
-                decoration:
-                    InputDecoration(labelText: "Fecha (YYYY-MM-DD HH:MM)"),
+              GestureDetector(
+                onTap: () async {
+                  // Primero muestra el calendario
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2023),
+                    lastDate: DateTime(2100),
+                  );
+
+                  if (pickedDate != null) {
+                    // Luego muestra el selector de hora
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (pickedTime != null) {
+                      // Combina fecha y hora
+                      final combined = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+
+                      setState(() {
+                        _selectedDateTime = combined;
+                        fechaController.text = '${combined.toLocal()}'
+                            .split('.')[0]; // Formato YYYY-MM-DD HH:MM
+                      });
+                    }
+                  }
+                },
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: fechaController,
+                    decoration: InputDecoration(
+                      labelText: "Selecciona la fecha y hora",
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                  ),
+                ),
               ),
               TextField(
                 controller: lugarController,
@@ -200,6 +240,10 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
                       SnackBar(content: Text("Tarea creada con éxito")));
 
                   Navigator.pop(context);
+
+                  setState(() {
+                    _futureTareas = _fetchTareasDesdeAPI();
+                  });
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Error al crear la tarea")));
@@ -212,6 +256,8 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
       },
     );
   }
+
+  DateTime? _selectedDateTime;
 
   void _mostrarFormularioExcusa() {
     TextEditingController nombreController = TextEditingController();
@@ -233,13 +279,95 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
                 controller: nombreController,
                 decoration: InputDecoration(labelText: "Nombre de la excusa"),
               ),
-              TextField(
-                controller: fechaInicialController,
-                decoration: InputDecoration(labelText: "Fecha (DD-MM-YYYY)"),
+              GestureDetector(
+                onTap: () async {
+                  // Primero muestra el calendario
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2023),
+                    lastDate: DateTime(2100),
+                  );
+
+                  if (pickedDate != null) {
+                    // Luego muestra el selector de hora
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (pickedTime != null) {
+                      // Combina fecha y hora
+                      final combined = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+
+                      setState(() {
+                        _selectedDateTime = combined;
+                        fechaInicialController.text = '${combined.toLocal()}'
+                            .split('.')[0]; // Formato YYYY-MM-DD HH:MM
+                      });
+                    }
+                  }
+                },
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: fechaInicialController,
+                    decoration: InputDecoration(
+                      labelText: "Selecciona la fecha y hora",
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                  ),
+                ),
               ),
-              TextField(
-                controller: fechaFinalController,
-                decoration: InputDecoration(labelText: "Fecha (DD-MM-YYYY)"),
+              GestureDetector(
+                onTap: () async {
+                  // Primero muestra el calendario
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2023),
+                    lastDate: DateTime(2100),
+                  );
+
+                  if (pickedDate != null) {
+                    // Luego muestra el selector de hora
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (pickedTime != null) {
+                      // Combina fecha y hora
+                      final combined = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+
+                      setState(() {
+                        _selectedDateTime = combined;
+                        fechaFinalController.text = '${combined.toLocal()}'
+                            .split('.')[0]; // Formato YYYY-MM-DD HH:MM
+                      });
+                    }
+                  }
+                },
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: fechaFinalController,
+                    decoration: InputDecoration(
+                      labelText: "Selecciona la fecha y hora",
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                  ),
+                ),
               ),
               TextField(
                 controller: descripcionController,
@@ -269,6 +397,9 @@ class _EmployeeDetailScreenState extends State<EmployeeDetailScreen>
                       SnackBar(content: Text("Excusa creada con éxito")));
 
                   Navigator.pop(context);
+                  setState(() {
+                    _futureExcusas = _fetchExcusasDesdeAPI();
+                  });
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Error al crear la Excusa $e")));

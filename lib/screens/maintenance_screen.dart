@@ -91,7 +91,18 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
           return ListView.builder(
             itemCount: mantenimientos.length,
             itemBuilder: (context, index) {
-              return MantenimientoCard(mantenimiento: mantenimientos[index]);
+              return MantenimientoCard(
+                mantenimiento: mantenimientos[index],
+                onUpdate: () {
+                  setState(() {
+                    // Refresca ambos por si cambió de pestaña
+                    _futureMaintenancesPendientes =
+                        _fetchMaintenancesDesdeAPI(false);
+                    _futureMaintenancesCompletas =
+                        _fetchMaintenancesDesdeAPI(true);
+                  });
+                },
+              );
             },
           );
         }
@@ -115,13 +126,26 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
           return ListView.builder(
             itemCount: mantenimientos.length,
             itemBuilder: (context, index) {
-              return MantenimientoCard(mantenimiento: mantenimientos[index]);
+              return MantenimientoCard(
+                mantenimiento: mantenimientos[index],
+                onUpdate: () {
+                  setState(() {
+                    // Refresca ambos por si cambió de pestaña
+                    _futureMaintenancesPendientes =
+                        _fetchMaintenancesDesdeAPI(false);
+                    _futureMaintenancesCompletas =
+                        _fetchMaintenancesDesdeAPI(true);
+                  });
+                },
+              );
             },
           );
         }
       },
     );
   }
+
+  DateTime? _selectedDateTime;
 
   void _mostrarFormularioMantenimiento() {
     TextEditingController nombreController = TextEditingController();
@@ -145,10 +169,50 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
                 decoration:
                     InputDecoration(labelText: "Nombre del mantenimiento"),
               ),
-              TextField(
-                controller: fechaController,
-                decoration:
-                    InputDecoration(labelText: "Fecha (YYYY-MM-DD HH:MM)"),
+              GestureDetector(
+                onTap: () async {
+                  // Primero muestra el calendario
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2023),
+                    lastDate: DateTime(2100),
+                  );
+
+                  if (pickedDate != null) {
+                    // Luego muestra el selector de hora
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (pickedTime != null) {
+                      // Combina fecha y hora
+                      final combined = DateTime(
+                        pickedDate.year,
+                        pickedDate.month,
+                        pickedDate.day,
+                        pickedTime.hour,
+                        pickedTime.minute,
+                      );
+
+                      setState(() {
+                        _selectedDateTime = combined;
+                        fechaController.text = '${combined.toLocal()}'
+                            .split('.')[0]; // Formato YYYY-MM-DD HH:MM
+                      });
+                    }
+                  }
+                },
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: fechaController,
+                    decoration: InputDecoration(
+                      labelText: "Selecciona la fecha y hora",
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                  ),
+                ),
               ),
               TextField(
                 controller: lugarController,

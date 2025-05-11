@@ -3,11 +3,26 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/maintenance_model.dart';
 import '../services/api_service.dart';
 
-class MantenimientoCard extends StatelessWidget {
+class MantenimientoCard extends StatefulWidget {
   final Maintenance mantenimiento;
+  final VoidCallback? onUpdate;
 
-  const MantenimientoCard({Key? key, required this.mantenimiento})
+  const MantenimientoCard(
+      {Key? key, required this.mantenimiento, this.onUpdate})
       : super(key: key);
+
+  @override
+  _MantenimientoCardState createState() => _MantenimientoCardState();
+}
+
+class _MantenimientoCardState extends State<MantenimientoCard> {
+  late bool _completado;
+
+  @override
+  void initState() {
+    super.initState();
+    _completado = widget.mantenimiento.completado;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +38,7 @@ class MantenimientoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                mantenimiento.nombre,
+                widget.mantenimiento.nombre,
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -31,17 +46,15 @@ class MantenimientoCard extends StatelessWidget {
                 ),
               ),
               Divider(color: Colors.grey[300]),
-
+              _buildInfoRow(Icons.person, "Descripción",
+                  widget.mantenimiento.descripcion),
               _buildInfoRow(
-                  Icons.person, "Descripción", mantenimiento.descripcion),
-              _buildInfoRow(Icons.calendar_today, "Fecha", mantenimiento.fecha),
-              _buildInfoRow(Icons.calendar_today, "Tipo", mantenimiento.tipo),
-              _buildInfoRow(Icons.numbers, "Esta completado? ",
-                  mantenimiento.completado.toString()),
-
+                  Icons.calendar_today, "Fecha", widget.mantenimiento.fecha),
+              _buildInfoRow(
+                  Icons.calendar_today, "Tipo", widget.mantenimiento.tipo),
+              _buildInfoRow(Icons.numbers, "¿Está completado?",
+                  widget.mantenimiento.completado.toString()),
               SizedBox(height: 15),
-
-              // Botones de Aceptar y Rechazar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -50,8 +63,13 @@ class MantenimientoCard extends StatelessWidget {
                     label: "Aceptar",
                     color: Colors.green,
                     onPressed: () async {
-                      await ApiService().markAsCompleted(mantenimiento.id);
+                      await ApiService()
+                          .markAsCompleted(widget.mantenimiento.id);
                       print("Excusa aceptada");
+                      setState(() {
+                        _completado = true;
+                      });
+                      widget.onUpdate?.call();
                     },
                   ),
                   _buildButton(
@@ -59,8 +77,13 @@ class MantenimientoCard extends StatelessWidget {
                     label: "Rechazar",
                     color: Colors.red,
                     onPressed: () async {
-                      await ApiService().markAsUncompleted(mantenimiento.id);
+                      await ApiService()
+                          .markAsUncompleted(widget.mantenimiento.id);
                       print("Excusa rechazada");
+                      setState(() {
+                        _completado = false;
+                      });
+                      widget.onUpdate?.call();
                     },
                   ),
                 ],
