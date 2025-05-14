@@ -113,4 +113,48 @@ class ApiService {
       throw Exception("No se pudo marcar como incompletado");
     }
   }
+
+  Future<List<dynamic>> fetchIngresos() async {
+    final response = await http.get(Uri.parse("${baseUrl}ingresos/"));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Error al obtener los ingresos");
+    }
+  }
+
+  Future<List<dynamic>> fetchEgresos() async {
+    final response = await http.get(Uri.parse("${baseUrl}egresos/"));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Error al obtener los egresos");
+    }
+  }
+
+  Future<dynamic> fetchBalance() async {
+    final response = await http.get(Uri.parse("${baseUrl}balance/"));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Error al obtener el balance");
+    }
+  }
+
+  Future<void> createEgreso(Map<String, dynamic> taskData) async {
+    final url = Uri.parse(
+        "${baseUrl}egresos/"); // Asegúrate de tener esta ruta en Django
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(taskData),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception("Error al crear egreso");
+    }
+  }
 }

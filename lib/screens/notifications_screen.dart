@@ -63,6 +63,11 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           name: "Tarea Completada",
           date: "26/02/2025",
           state: "completada"),
+      Notificacion(
+          id: 2,
+          name: "Mantenimiento pendiente",
+          date: "26/04/2025",
+          state: "pendiente"),
     ];
 
     return ListView.builder(
@@ -74,13 +79,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
   }
 
   Widget _buildNuevasTab() {
-    List<Notificacion> notificaciones = [
-      Notificacion(
-          id: 1,
-          name: "Tarea Completada",
-          date: "26/02/2025",
-          state: "completada"),
-    ];
+    List<Notificacion> notificaciones = [];
 
     return ListView.builder(
       itemCount: notificaciones.length,
@@ -97,6 +96,11 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           name: "Tarea Completada",
           date: "26/02/2025",
           state: "completada"),
+      Notificacion(
+          id: 2,
+          name: "Mantenimiento pendiente",
+          date: "26/04/2025",
+          state: "pendiente"),
     ];
 
     return ListView.builder(
